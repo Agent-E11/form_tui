@@ -1,0 +1,18 @@
+[project]
+name = "form_tui"
+version = "0.0.0"
+authors = [
+    { name="Eamon Burns", email="me@eamonburns.com" },
+]
+description = "A simple package for creating TUI forms."
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/agent-e11/form_tui"
+Issues = "https://github.com/agent-e11/form_tui/issues"
