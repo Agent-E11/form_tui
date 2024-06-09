@@ -1,4 +1,4 @@
-from typing import Protocol, get_args
+from typing import Protocol, Callable, get_args
 from types import NoneType, UnionType
 
 class Field:
@@ -9,11 +9,13 @@ class Field:
     id: str
     name: str
     t: type | UnionType
+    validate: Callable[[str], bool] | None
 
-    def __init__(self, id: str, name: str, t: type | UnionType):
+    def __init__(self, id: str, name: str, t: type | UnionType, validate: Callable[[str], bool] | None = None):
         self.id = id
         self.name = name
         self.t = t
+        self.validate = validate
 
 class Form(Protocol):
     """
@@ -47,6 +49,12 @@ def run_form(form: Form) -> None:
             raise Exception("required value was not supplied")
         elif ans != "":
             # Loop through the possible types
+            if (
+                field.validate is not None
+                and not field.validate(ans)
+            ):
+                raise Exception(f"custom validator failed")
+
             for t in all_types:
                 if t is NoneType: # If it is NoneType, ignore it
                     continue
@@ -67,14 +75,14 @@ def run_form(form: Form) -> None:
 
 class MyForm:
     first_name: str
-    middle_name: str | None
+    middle_initial: str | None
     last_name: str
     favorite_value: int
 
     def fields(self) -> list[Field]:
         return [
             Field("first_name", "First Name", str),
-            Field("middle_name", "Middle Name", str | None),
+            Field("middle_initial", "Middle Initial", str | None, lambda ans: ans is None or len(ans) == 1),
             Field("last_name", "Last Name", str),
             Field("favorite_value", "Favorite Value", int | str),
         ]
