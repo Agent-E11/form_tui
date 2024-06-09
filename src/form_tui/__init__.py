@@ -47,7 +47,11 @@ class Field:
     like `lambda s: s.contains("@")`
     """
 
-    def __init__(self, id: str, name: str, t: type | UnionType, validator: Callable[[str], bool] | None = None):
+    def __init__(
+        self, id: str,
+        name: str, t: type | UnionType,
+        validator: Callable[[str], bool] | None = None
+    ) -> None:
         self.id = id
         self.name = name
         self.t = t
@@ -110,30 +114,3 @@ def run_form(form: Form) -> None:
                 raise Exception(f"value \"{ans}\" was not able to be converted to any of these types: {all_types}")
 
         setattr(form, field.id, v)
-
-# -- Extra -- #  TODO: Delete this
-
-class MyForm:
-    first_name: str
-    middle_initial: str | None
-    last_name: str
-    favorite_value: int
-
-    def fields(self) -> list[Field]:
-        return [
-            Field("first_name", "First Name", str),
-            Field("middle_initial", "Middle Initial", str | None, lambda ans: ans is None or len(ans) == 1),
-            Field("last_name", "Last Name", str),
-            Field("favorite_value", "Favorite Value", int | str),
-        ]
-
-if __name__ == "__main__":
-    f = MyForm()
-    run_form(f)
-    print()
-
-    for field in f.fields():
-        print(f"id: {field.id}, name: {field.name}, type: {field.t}, validator: {field.validator}")
-
-    for var, val in vars(f).items():
-        print(f"{var}: {type(val)} = {val}")

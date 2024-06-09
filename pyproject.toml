@@ -1,6 +1,6 @@
 [project]
 name = "form_tui"
-version = "0.0.0"
+version = "0.1.0"
 authors = [
     { name="Eamon Burns", email="me@eamonburns.com" },
 ]
