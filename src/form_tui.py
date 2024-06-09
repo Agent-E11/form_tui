@@ -3,19 +3,62 @@ from types import NoneType, UnionType
 
 class Field:
     """
-    Represents a field in a form. Contains the id, name, and type
-    of the field.
+    Represents a field in a form. Contains the id,
+    name, and type of the field.
+
+    Here is an example contact form:
+
+    ```
+    class ContactForm:
+        name: str
+        phone_number: int
+    ```
+
+    The corresponding `Field`s for this form would
+    probably be something like this:
+
+    ```
+    Field("name", "Name", str)
+    Field("phone_number", "Phone Number", int)
+    #     ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^  ^^^
+    #     |               |               + Type
+    #     |               + Vanity name
+    #     + Attribute name
+    ```
     """
     id: str
+    """
+    Name of the field on the form class. This must
+    exactly match the corresponding attribute's name.
+    """
     name: str
+    """
+    Nice name of the field. This name is what will be
+    displayed to the user.
+    """
     t: type | UnionType
-    validate: Callable[[str], bool] | None
+    """
+    Type(s) of the field value.
+    """
+    validator: Callable[[str], bool] | None
+    """
+    Function to validate a string input.
+    E.g. a rudimentary email validator could be something
+    like `lambda s: s.contains("@")`
+    """
 
-    def __init__(self, id: str, name: str, t: type | UnionType, validate: Callable[[str], bool] | None = None):
+    def __init__(self, id: str, name: str, t: type | UnionType, validator: Callable[[str], bool] | None = None):
         self.id = id
         self.name = name
         self.t = t
-        self.validate = validate
+        self.validator = validator
+
+    def validate(self, s: str) -> bool:
+        """
+        Validate the given string using this field's validator.
+        If the validator is `None`, then it will simply return True.
+        """
+        return self.validator is None or self.validator(s)
 
 class Form(Protocol):
     """
@@ -48,13 +91,11 @@ def run_form(form: Form) -> None:
             # If the answer wasn't provided and it is required, raise an exception
             raise Exception("required value was not supplied")
         elif ans != "":
-            # Loop through the possible types
-            if (
-                field.validate is not None
-                and not field.validate(ans)
-            ):
+            # Validate the input
+            if not field.validate(ans):
                 raise Exception(f"custom validator failed")
 
+            # Loop through the possible types
             for t in all_types:
                 if t is NoneType: # If it is NoneType, ignore it
                     continue
@@ -69,7 +110,6 @@ def run_form(form: Form) -> None:
                 raise Exception(f"value \"{ans}\" was not able to be converted to any of these types: {all_types}")
 
         setattr(form, field.id, v)
-
 
 # -- Extra -- #  TODO: Delete this
 
@@ -91,6 +131,9 @@ if __name__ == "__main__":
     f = MyForm()
     run_form(f)
     print()
+
+    for field in f.fields():
+        print(f"id: {field.id}, name: {field.name}, type: {field.t}, validator: {field.validator}")
 
     for var, val in vars(f).items():
         print(f"{var}: {type(val)} = {val}")
