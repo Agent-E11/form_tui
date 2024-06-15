@@ -1,5 +1,6 @@
 from form_tui import Field, run_form
 
+
 class ContactForm:
     name: str
     email: str
@@ -11,6 +12,7 @@ class ContactForm:
             Field("email", "Email", str, validator=lambda s: "@" in s),
             Field("phone_number", "phone_number", int | None),
         ]
+
 
 if __name__ == "__main__":
     contact_form = ContactForm()

@@ -11,7 +11,7 @@ class FieldTest(unittest.TestCase):
         with_validator = Field("email", "Email", str, lambda s: "@" in s)
         self.assertTrue(with_validator.validate("me@email.com"))
         self.assertFalse(with_validator.validate(""))
-        
+
 
 if __name__ == "__main__":
     unittest.main()

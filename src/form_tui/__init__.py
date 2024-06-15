@@ -1,10 +1,10 @@
 from typing import Protocol, Callable, get_args
 from types import NoneType, UnionType
 
+
 class Field:
     """
-    Represents a field in a form. Contains the id,
-    name, and type of the field.
+    Represents a field in a form. Contains the id, name, and type of the field.
 
     Here is an example contact form:
 
@@ -14,8 +14,8 @@ class Field:
         phone_number: int
     ```
 
-    The corresponding `Field`s for this form would
-    probably be something like this:
+    The corresponding `Field`s for this form would probably be something like
+    this:
 
     ```
     Field("name", "Name", str)
@@ -28,13 +28,12 @@ class Field:
     """
     id: str
     """
-    Name of the field on the form class. This must
-    exactly match the corresponding attribute's name.
+    Name of the field on the form class. This must exactly match the
+    corresponding attribute's name.
     """
     name: str
     """
-    Nice name of the field. This name is what will be
-    displayed to the user.
+    Nice name of the field. This name is what will be displayed to the user.
     """
     t: type | UnionType
     """
@@ -43,8 +42,8 @@ class Field:
     validator: Callable[[str], bool] | None
     """
     Function to validate a string input.
-    E.g. a rudimentary email validator could be something
-    like `lambda s: s.contains("@")`
+    E.g. a rudimentary email validator could be something like
+    `lambda s: s.contains("@")`
     """
 
     def __init__(
@@ -59,10 +58,11 @@ class Field:
 
     def validate(self, s: str) -> bool:
         """
-        Validate the given string using this field's validator.
-        If the validator is `None`, then it will simply return True.
+        Validate the given string using this field's validator. If the
+        validator is `None`, then it will simply return True.
         """
         return self.validator is None or self.validator(s)
+
 
 class Form(Protocol):
     """
@@ -73,6 +73,7 @@ class Form(Protocol):
         Returns the id and type of the different fields of the form
         """
         ...
+
 
 def run_form(form: Form) -> None:
     """
@@ -92,25 +93,31 @@ def run_form(form: Form) -> None:
         v = None
         ans = input(field.name + ("" if required else " (optional)") + ": ")
         if ans == "" and required:
-            # If the answer wasn't provided and it is required, raise an exception
+            # If the answer wasn't provided and it is required, raise an
+            # exception
             raise Exception("required value was not supplied")
         elif ans != "":
             # Validate the input
             if not field.validate(ans):
-                raise Exception(f"custom validator failed")
+                raise Exception("custom validator failed")
 
             # Loop through the possible types
             for t in all_types:
-                if t is NoneType: # If it is NoneType, ignore it
+                if t is NoneType:  # If it is NoneType, ignore it
                     continue
 
-                try: # Try to convert to the type
+                try:  # Try to convert to the type
                     v = t(ans)
-                    break # If successful, break out of the loop
+                    break  # If successful, break out of the loop
                 except ValueError:
-                    continue # If unsuccessful, try next type
+                    continue  # If unsuccessful, try next type
 
-            if v == None: # If the value is still None, then the answer was not able to be converted
-                raise Exception(f"value \"{ans}\" was not able to be converted to any of these types: {all_types}")
+            if v is None:
+                # If the value is still None, then the answer was not able
+                # to be converted
+                raise Exception(
+                    f"value \"{ans}\" was not able to be \
+                    converted to any of these types: {all_types}"
+                )
 
         setattr(form, field.id, v)
